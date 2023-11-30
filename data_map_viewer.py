@@ -11,6 +11,7 @@ st.set_page_config(
     layout="wide",
 )
 
+
 @st.cache_data
 def load_data(data):
     df = pd.read_csv(data)
@@ -32,12 +33,13 @@ def load_data(data):
 
     # Drop rows with missing values in the latitude or longitude columns
     if "latitude" in df.columns:
-        df.dropna(subset = ["latitude"], inplace=True)
+        df.dropna(subset=["latitude"], inplace=True)
 
     if "longitude" in df.columns:
-        df.dropna(subset = ["longitude"], inplace=True)
+        df.dropna(subset=["longitude"], inplace=True)
 
     return df
+
 
 @st.cache_data
 def load_geometries(df):
@@ -46,20 +48,24 @@ def load_geometries(df):
 
     return geo_df
 
+
 df = None
 
-if 'rows' not in st.session_state:
+if "rows" not in st.session_state:
     st.session_state.rows = 0
 
 # Initialize submit button state
-if 'clicked' not in st.session_state:
+if "clicked" not in st.session_state:
     st.session_state.clicked = False
+
 
 def click_submit():
     st.session_state.clicked = True
 
+
 def url_input():
     st.session_state.clicked = False
+
 
 st.title("🗺️ Data Map Viewer")
 
@@ -67,7 +73,7 @@ st.write("Import Data")
 tab1, tab2 = st.tabs(["By File", "By URL"])
 
 with tab1:
-    uploaded_file = st.file_uploader("Choose a .csv file", type='csv')
+    uploaded_file = st.file_uploader("Choose a .csv file", type="csv")
 
 with tab2:
     if uploaded_file is None:
@@ -98,10 +104,14 @@ if df is not None:
         # Map with scatterplot
         st.map(df.head(nrows), use_container_width=True)
     with top_right:
-        st.subheader('🔭 Dataset Preview')
+        st.subheader("🔭 Dataset Preview")
         st.dataframe(df.head(nrows), height=405)
         if na_values > 0:
-            st.write("{} rows with NA values in the Latitude/Longitude column were removed.".format(na_values))
+            st.write(
+                "{} rows with NA values in the Latitude/Longitude column were removed.".format(
+                    na_values
+                )
+            )
 
     bottom_left, bottom_right = st.columns([1, 1], gap=column_gap)
 
@@ -114,22 +124,24 @@ if df is not None:
             location=[location.latitude, location.longitude],
             tiles="Cartodb dark_matter",
             zoom_start=zoom_level,
-            control_scale=True
+            control_scale=True,
         )
 
         heat_data = [[point.xy[1][0], point.xy[0][0]] for point in geo_df.geometry]
 
         plugins.HeatMap(heat_data).add_to(map)
-        st_folium(map, use_container_width=True, height=map_height, center="center", key="1")
+        st_folium(
+            map, use_container_width=True, height=map_height, center="center", key="1"
+        )
 
     with bottom_right:
         # Clustered point map
 
         m = folium.Map(
             location=[location.latitude, location.longitude],
-            tiles = 'cartodbpositron',
+            tiles="cartodbpositron",
             zoom_start=zoom_level,
-            control_scale=True
+            control_scale=True,
         )
 
         points = [[point.xy[1][0], point.xy[0][0]] for point in geo_df.geometry]
@@ -138,4 +150,6 @@ if df is not None:
 
         marker_cluster.add_to(m)
 
-        st_folium(m, use_container_width=True, height=map_height, center="center", key="2")
+        st_folium(
+            m, use_container_width=True, height=map_height, center="center", key="2"
+        )
