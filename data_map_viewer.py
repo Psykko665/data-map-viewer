@@ -94,8 +94,6 @@ if df is not None:
     na_values = st.session_state.rows - df.shape[0]
     nrows = st.slider("Observations", 0, df.shape[0], min(df.shape[0], 10000))
 
-    location = df[["latitude", "longitude"]].median()
-    geo_df = load_geometries(df.head(nrows))
     column_gap = "medium"
 
     top_left, top_right = st.columns([1, 1], gap=column_gap)
@@ -118,6 +116,10 @@ if df is not None:
     map_height = 500
     zoom_level = 2
 
+    location = df[["latitude", "longitude"]].median()
+    geo_df = load_geometries(df.head(nrows))
+    points = [[point.xy[1][0], point.xy[0][0]] for point in geo_df.geometry]
+
     with bottom_left:
         # Heatmap
         map = folium.Map(
@@ -127,9 +129,7 @@ if df is not None:
             control_scale=True,
         )
 
-        heat_data = [[point.xy[1][0], point.xy[0][0]] for point in geo_df.geometry]
-
-        plugins.HeatMap(heat_data).add_to(map)
+        plugins.HeatMap(points).add_to(map)
         st_folium(
             map, use_container_width=True, height=map_height, center="center", key="1"
         )
@@ -143,8 +143,6 @@ if df is not None:
             zoom_start=zoom_level,
             control_scale=True,
         )
-
-        points = [[point.xy[1][0], point.xy[0][0]] for point in geo_df.geometry]
 
         marker_cluster = plugins.MarkerCluster(points)
 
