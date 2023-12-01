@@ -77,10 +77,10 @@ with tab1:
 
 with tab2:
     if uploaded_file is None:
-        data_url = st.text_input("URL", on_change=url_input)
+        data_url = st.text_input("Data File URL", on_change=url_input)
         st.button("Submit", on_click=click_submit, type="primary")
     else:
-        data_url = st.text_input("URL", on_change=url_input, disabled=True)
+        data_url = st.text_input("Data File URL", on_change=url_input, disabled=True)
         st.button("Submit", on_click=click_submit, type="primary", disabled=True)
         st.info("To enter a URL, remove the uploaded file", icon="ℹ️")
 
